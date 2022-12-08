@@ -36,7 +36,6 @@ fn part1(contents: &[Input]) -> usize {
             // Down
             let down = (r+1..row.len()).all(|h| grid[h][c] < grid[r][c]);
             if left || up || right || down {
-                println!("{r}, {c}");
                 visible += 1;
             }
         }
@@ -46,9 +45,40 @@ fn part1(contents: &[Input]) -> usize {
 }
 
 fn part2(contents: &[Input]) -> usize {
-    let grid: Vec<Vec<u8>> = contents.iter().map(|s| s.chars().map(|c| (c as u8) - 32).collect()).collect();
+    let grid: Vec<Vec<u8>> = contents.iter().map(|s| s.chars().map(|c| (c as u8) - 48).collect()).collect();
 
     let mut scenic = 0;
+    for r in 1..=grid.len() - 2 {
+        let row = &grid[r];
+        for c in 1..=row.len() - 2 {
+
+            // Left
+            let mut left = (0..c).rev().take_while(|h| grid[r][*h as usize] < grid[r][c]).count();
+            if left < c {
+                left += 1;
+            }
+            // Up
+            let mut up = (0..r).rev().take_while(|h| grid[*h as usize][c] < grid[r][c]).count();
+            if up < r {
+                up += 1;
+            }
+            // Right
+            let mut right = (c+1..grid.len()).take_while(|h| grid[r][*h as usize] < grid[r][c]).count();
+            if right < grid.len() - c - 1 {
+                right += 1;
+            }
+            // Down
+            let mut down = (r+1..row.len()).take_while(|h| grid[*h as usize][c] < grid[r][c]).count();
+            if down < row.len() - r - 1 {
+                down += 1;
+            }
+            let score = left * up * right * down;
+            println!("({r}, {c}) is {}: {left} * {up} * {right} * {down} = {score}", grid[r][c]);
+            if score > scenic {
+                scenic = score;
+            }
+        }
+    }
     scenic
 }
 
