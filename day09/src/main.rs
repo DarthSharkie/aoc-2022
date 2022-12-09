@@ -1,7 +1,7 @@
 use std::fs;
 use std::io::{self, BufRead};
 use std::collections::HashSet;
-use std::ops::{AddAssign, Sub};
+use std::ops::{Sub};
 
 type Input = String;
 
@@ -28,15 +28,6 @@ impl Pos {
     }
     fn down(self) -> Self { 
         Self { x: self.x, y: self.y - 1 } 
-    }
-}
-
-impl AddAssign for Pos {
-    fn add_assign(&mut self, other: Self) {
-        *self = Self {
-            x: self.x + other.x,
-            y: self.y + other.y,
-        };
     }
 }
 
@@ -69,41 +60,53 @@ fn main() {
 }
 
 fn part1(contents: &[Input]) -> usize {
-    let mut visited: HashSet<Pos> = HashSet::new();
+    let mut snake: [Pos; 2] = [Pos { x: 0, y: 0 }; 2]; 
+    snake_march(contents, &mut snake)
+}
 
-    let mut head = Pos { x: 0, y: 0 };
-    let mut tail = Pos { x: 0, y: 0 };
+fn part2(contents: &[Input]) -> usize {
+    let mut snake: [Pos; 10] = [Pos { x: 0, y: 0 }; 10]; 
+    snake_march(contents, &mut snake)
+}
+
+fn snake_march(contents: &[Input], snake: &mut [Pos]) -> usize {
+    let mut visited: HashSet<Pos> = HashSet::new();
 
     for cmd in contents {
         let (dir, steps) = cmd.split_once(" ").map(|t| (t.0, t.1.parse::<usize>().expect("not a usize"))).unwrap();
         for _ in 0..steps {
             // move head
             match dir {
-                "R" => head.move_right(),
-                "U" => head.move_up(),
-                "L" => head.move_left(),
-                "D" => head.move_down(),
+                "R" => snake[0].move_right(),
+                "U" => snake[0].move_up(),
+                "L" => snake[0].move_left(),
+                "D" => snake[0].move_down(),
                 _ => (),
             }
 
-            // move tail
-            let diff = head - tail;
-            match diff {
-                Pos { x: -2, .. } => tail = head.right(),
-                Pos { x: 2, .. } => tail = head.left(),
-                Pos { y: -2, .. } => tail = head.up(),
-                Pos { y: 2, .. } => tail = head.down(),
-                _ => (),
+            // move body
+            for segment in 1..snake.len() {
+                let diff = snake[segment - 1] - snake[segment];
+                match diff {
+                    // "corner" cases
+                    Pos { x: -2, y: -2 } => snake[segment] = snake[segment - 1].right().up(),
+                    Pos { x: -2, y: 2 } => snake[segment] = snake[segment - 1].right().down(),
+                    Pos { x: 2, y: -2 } => snake[segment] = snake[segment - 1].left().up(),
+                    Pos { x: 2, y: 2 } => snake[segment] = snake[segment - 1].left().down(),
+                    // "edge" cases
+                    Pos { x: -2, .. } => snake[segment] = snake[segment - 1].right(),
+                    Pos { x: 2, .. } => snake[segment] = snake[segment - 1].left(),
+                    Pos { y: -2, .. } => snake[segment] = snake[segment - 1].up(),
+                    Pos { y: 2, .. } => snake[segment] = snake[segment - 1].down(),
+                    // "happy" cases
+                    _ => (),
+                }
             }
 
-            visited.insert(tail.clone());
+            visited.insert(snake[snake.len() - 1].clone());
         }
     }
     visited.len()
-}
-
-fn part2(contents: &[Input]) -> usize {
-    0
 }
 
 #[test]
@@ -115,6 +118,6 @@ fn test_part1() {
 #[test]
 fn test_part2() {
     let lines: Vec<Input> = load_file("test.txt").unwrap();
-    assert_eq!(part2(&lines), 0);
+    assert_eq!(part2(&lines), 1);
 }
 
