@@ -36,14 +36,18 @@ impl Monkey {
 }
 
 fn part1(monkeys: &mut Vec<Monkey>) -> usize {
+    inspect(monkeys, 20, |worry| worry / 3)
+}
+
+fn inspect(monkeys: &mut Vec<Monkey>, rounds: usize, worry_fn: fn(usize) -> usize) -> usize {
     let mut inspections: Vec<usize> = vec![0; monkeys.len()];
     
-    for _ in 0..20 {
+    for r in 0..rounds {
         for (idx, m) in monkeys.iter().enumerate() {
-            inspections[idx] += m.items.borrow().len();
             while let Some(worry) = m.items.borrow_mut().pop_front() {
+                inspections[idx] += 1;
                 let worry = (m.operation)(worry);
-                let worry = worry / 3;
+                let worry = (worry_fn)(worry);
                 if (m.test)(worry) {
                     monkeys[m.if_true].items.borrow_mut().push_back(worry);
                 } else {
@@ -52,13 +56,14 @@ fn part1(monkeys: &mut Vec<Monkey>) -> usize {
             }
         }
     }
+    println!("{inspections:?}");
 
     inspections.sort();
     inspections[inspections.len() - 2] * inspections[inspections.len() - 1]
 }
 
-fn part2(monkeys: &mut [Monkey]) -> usize {
-    0
+fn part2(monkeys: &mut Vec<Monkey>) -> usize {
+    inspect(monkeys, 10000, |w| w % 9699690)
 }
 
 #[test]
@@ -78,6 +83,6 @@ fn test_part2() {
     monkeys.push(Monkey::new(vec![54, 65, 75, 74], |old| old + 6, |worry| worry % 19 == 0, 2, 0));
     monkeys.push(Monkey::new(vec![79, 60, 97], |old| old * old, |worry| worry % 13 == 0, 1, 3));
     monkeys.push(Monkey::new(vec![74], |old| old + 3, |worry| worry % 17 == 0, 0, 1));
-    assert_eq!(part2(&mut monkeys), 0);
+    assert_eq!(part2(&mut monkeys), 2713310158);
 }
 
