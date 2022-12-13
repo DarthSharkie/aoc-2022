@@ -1,7 +1,6 @@
 use std::fs;
 use std::io::{self, BufRead};
 use std::collections::{HashSet, HashMap, VecDeque};
-use std::cmp::max;
 
 type Input = String;
 
@@ -43,14 +42,17 @@ fn make_grid(lines: &[Input]) -> (HashMap<(usize, usize), char>, (usize, usize),
 
 fn part1(lines: &[Input]) -> usize {
     let (grid, s, e) = make_grid(lines);
-    println!("Start: {s:?}");
-    println!("End: {e:?}");
-
     bfs(&grid, &s, &e)
 }
 
 fn part2(lines: &[Input]) -> usize {
-    0
+    let (grid, _, e) = make_grid(lines);
+    grid.iter().map(|(k, v)| {
+        match v {
+            'a' => bfs(&grid, &k, &e),
+            _ => usize::MAX,
+        }
+    }).min().unwrap()
 }
 
 fn bfs(grid: &HashMap<(usize, usize), char>, s: &(usize, usize), e: &(usize, usize)) -> usize {
@@ -59,7 +61,6 @@ fn bfs(grid: &HashMap<(usize, usize), char>, s: &(usize, usize), e: &(usize, usi
     let mut visited: HashSet<(usize, usize)> = HashSet::new();
     visited.insert(*s);
     while let Some((pos, depth)) = queue.pop_front() {
-        println!("Pos: {pos:?}, Depth: {depth}");
         if &pos == e {
             return depth;
         }
@@ -72,7 +73,7 @@ fn bfs(grid: &HashMap<(usize, usize), char>, s: &(usize, usize), e: &(usize, usi
             }
         });
     }
-    unreachable!();
+    usize::MAX
 }
 
 fn is_step(grid: &HashMap<(usize, usize), char>, pos: &(usize, usize), next: &(usize, usize)) -> bool {
@@ -95,6 +96,6 @@ fn test_part1() {
 #[test]
 fn test_part2() {
     let lines: Vec<Input> = load_file("test.txt").unwrap();
-    assert_eq!(part2(&lines), 0);
+    assert_eq!(part2(&lines), 29);
 }
 
