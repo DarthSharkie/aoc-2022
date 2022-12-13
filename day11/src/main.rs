@@ -11,7 +11,7 @@ fn main() {
     monkeys.push(Monkey::new(vec![79], |old| old + 7, |worry| worry % 2 == 0, 7, 0));
     monkeys.push(Monkey::new(vec![77, 55, 63, 93, 66, 90, 88, 71], |old| old * 7, |worry| worry % 11 == 0, 2, 4));
     monkeys.push(Monkey::new(vec![54, 97, 87, 70, 59, 82, 59], |old| old + 8, |worry| worry % 17 == 0, 1, 3));
-    println!("Part 1: {}", part1(&mut monkeys));
+    //println!("Part 1: {}", part1(&mut monkeys));
     println!("Part 2: {}", part2(&mut monkeys));
 }
 
