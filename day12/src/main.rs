@@ -1,4 +1,5 @@
 use std::fs;
+use std::time::Instant;
 use std::io::{self, BufRead};
 use std::collections::{HashSet, HashMap, VecDeque};
 
@@ -14,10 +15,13 @@ fn load_file(filename: &str) -> io::Result<Vec<Input>> {
 }
 
 fn main() {
+    let start = Instant::now();
     let lines: Vec<Input> = load_file("/mnt/s/AdventOfCode/2022/input12.txt").unwrap();
 
     println!("Part 1: {}", part1(&lines));
     println!("Part 2: {}", part2(&lines));
+    let elapsed = start.elapsed();
+    println!("Elapsed: {}µs", elapsed.as_micros());
 }
 
 fn make_grid(lines: &[Input]) -> (HashMap<(usize, usize), char>, (usize, usize), (usize, usize)) {
