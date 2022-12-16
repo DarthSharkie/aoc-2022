@@ -44,6 +44,7 @@ impl Node {
         } else {
             let sum = self.children.iter().map(|(_, val)| val.borrow().total_size(filter, accum)).sum();
             if filter(sum) {
+                println!("{}: {sum}", self.name);
                 *accum = *accum + sum;
             }
             sum
@@ -86,7 +87,7 @@ fn construct_filetree(commands: &[Input]) -> Rc<RefCell<Node>> {
 
     let mut current = Rc::clone(&root);
     for cmd in commands {
-        println!("{cmd}");
+        // println!("{cmd}");
         if cmd.starts_with("$ ls") {
             // Do nothing
         }
